@@ -1,29 +1,31 @@
-"use client"; 
+"use client";
 import { useState } from "react";
-import { getModel } from "@/lib/firebase";
+import { createPantry, joinPantry } from "@/lib/pantry";
 
 export default function Home() {
-  const [answer, setAnswer] = useState(""); 
-  const [loading, setLoading] = useState(false); 
+  const [result, setResult] = useState("");   // what to show on screen
+  const [code, setCode] = useState("");       // the code typed in the box
 
-  async function testAI() {
-    setLoading(true);
-    try {
-      const result = await getModel().generateContent("Say hello to a food pantry volunteer in Spanish, one sentence.");
-      setAnswer(result.response.text()); 
-    } catch (err) {
-      setAnswer("Error: " + String(err)); 
-    }
-    setLoading(false);
+  async function testCreate() {
+    const p = await createPantry("Test Pantry", "123 Main St, Wylie TX"); // fake pantry
+    setResult("Created! Code: " + p.code);                                // show its code
+  }
+
+  async function testJoin() {
+    const p = await joinPantry(code);                                     // look up the typed code
+    setResult(p ? "Joined: " + JSON.stringify(p) : "Wrong code");         // show the pantry or "Wrong code"
   }
 
   return (
-    <main className="p-10">
-      <h1 className="text-3xl font-bold mb-4">Plenty: AI test</h1>
-      <button onClick={testAI} className="bg-green-700 text-white px-4 py-2 rounded">
-        {loading ? "Thinking..." : "Test Gemini"}
-      </button>
-      <p className="mt-6 text-lg">{answer}</p>
+    <main className="p-10 space-y-4">
+      <h1 className="text-3xl font-bold">Plenty: pantry test</h1>
+      <button onClick={testCreate} className="bg-green-700 text-white px-4 py-2 rounded">Create pantry</button>
+      <div className="flex gap-2">
+        <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="6-digit code"
+          className="border px-3 py-2 rounded text-black" />
+        <button onClick={testJoin} className="bg-orange-600 text-white px-4 py-2 rounded">Join</button>
+      </div>
+      <p className="text-lg break-all">{result}</p>
     </main>
   );
 }
