@@ -17,6 +17,7 @@ export default function Home() {
       setMessage("Wrong code");
       return;
     }
+    
     setPantryId(pantry.id);
     localStorage.setItem("pantryId", pantry.id);
     setMessage("");
